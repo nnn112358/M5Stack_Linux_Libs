@@ -1,4 +1,4 @@
-//Copyright (c) 2024 @nnn112358<https://github.com/nnn112358/>
+//Copyright (c)2024 nnn112358 <https://github.com/nnn112358/>
 
 #include <opencv2/opencv.hpp>
 #include <iostream>
@@ -12,12 +12,10 @@
 #include <chrono>
 
 
-//画像作成
+//ColorChart画像作成
 cv::Mat create_mat_image(int width, int height);
 
 int view_information(struct fb_fix_screeninfo &finfo ,struct fb_var_screeninfo &vinfo){
-
-
     // デバイス情報の出力
     std::cout << "--------------------------\n"
               << "Frame Buffer Device Information:\n"
@@ -28,9 +26,6 @@ int view_information(struct fb_fix_screeninfo &finfo ,struct fb_var_screeninfo &
               << "Visual: " << finfo.visual << "\n"
               << "Line Length: " << finfo.line_length << " bytes per line\n"
               << "--------------------------\n";
-
-
-
     // スクリーン情報の出力
     std::cout << "Variable Framebuffer Information:\n"
               << "Resolution: " << vinfo.xres << "x" << vinfo.yres << "\n"
@@ -40,7 +35,6 @@ int view_information(struct fb_fix_screeninfo &finfo ,struct fb_var_screeninfo &
               << "Green: Offset " << static_cast<int>(vinfo.green.offset) << ", Length " << static_cast<int>(vinfo.green.length) << "\n"
               << "Blue: Offset " << static_cast<int>(vinfo.blue.offset) << ", Length " << static_cast<int>(vinfo.blue.length) << "\n"
               << "--------------------------\n";
-
 	return 0;
 }
 
@@ -52,14 +46,13 @@ int main() {
         perror("Cannot open framebuffer device");
         return 1;
     }
-
     int fbfd1 = open("/dev/fb1", O_RDWR);
     if (fbfd1 == -1) {
         perror("Cannot open framebuffer device");
         return 1;
     }
 
-    // 固定スクリーン情報の構造体
+	// 固定スクリーン情報の構造体
     struct fb_fix_screeninfo finfo0;
     if (ioctl(fbfd0, FBIOGET_FSCREENINFO, &finfo0)) {
         perror("Error reading fixed screen info");
@@ -96,8 +89,6 @@ int main() {
     std::cout<<"/dev/fb1 information"<<std::endl;
     view_information(finfo1 ,vinfo1);
     
-    
-
     // メモリマッピング
     char* fbAddr0 = static_cast<char*>(mmap(nullptr, finfo0.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd0, 0));
     if (fbAddr0 == MAP_FAILED) {
@@ -113,19 +104,18 @@ int main() {
         return 1;
     }
 
-
     const int width = 1280;
     const int height = 720;
-
+	
+    //ColorChart画像作成
     cv::Mat image = create_mat_image(width,height);
-    // 画像の読み込み
+    // 画像ファイルを読み込みする場合は代わりに以下の処理
     /*
     cv::Mat image = cv::imread("06b.jpg");
     if (image.empty()) {
         std::cerr << "Error: Image not found or empty.\n";
         munmap(fbAddr0, finfo0.smem_len);
         munmap(fbAddr1, finfo1.smem_len);
-
         close(fbfd0);
         close(fbfd1);
         return 1;
@@ -151,7 +141,6 @@ int main() {
     size_t screen_size1 = lcd_image.total() * lcd_image.elemSize();
     memcpy(fbAddr1, lcd_image.data, screen_size1);
     
-
     // リソースの解放
     munmap(fbAddr0, finfo0.smem_len);
     munmap(fbAddr1, finfo1.smem_len);
@@ -161,7 +150,7 @@ int main() {
     return 0;
 }
 
-//画像作成
+//ColorChart画像作成
 cv::Mat create_mat_image(int width, int height) {
     const int band_height = height / 12;  // 各色のバンドの高さ
     const int segment_width = width / 16; // 横方向の色の切り替わりポイント
@@ -214,8 +203,6 @@ cv::Mat create_mat_image(int width, int height) {
             row[x] = cv::Vec3b(blue, green, red);
         }
     }
-
     return image;
 }
-
 
